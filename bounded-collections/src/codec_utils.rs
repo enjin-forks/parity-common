@@ -22,7 +22,6 @@
 /// This is used internally by bounded collections to reconstruct the original
 /// input stream after reading the length prefix during decoding.
 
-#[cfg(any(feature = "scale-codec", feature = "jam-codec"))]
 pub struct PrependCompactInput<'a, I> {
 	pub encoded_len: &'a [u8],
 	pub read: usize,
@@ -30,7 +29,6 @@ pub struct PrependCompactInput<'a, I> {
 }
 
 /// Macro to implement Input trait for PrependCompactInput for different codec crates
-#[cfg(any(feature = "scale-codec", feature = "jam-codec"))]
 macro_rules! impl_prepend_compact_input {
 	($codec:ident) => {
 		use $codec::{Error, Input};
@@ -69,7 +67,6 @@ macro_rules! impl_prepend_compact_input {
 }
 
 // Generate implementations for each codec
-#[cfg(feature = "scale-codec")]
 pub mod scale_codec_impl {
 	use super::PrependCompactInput;
 	impl_prepend_compact_input!(scale_codec);

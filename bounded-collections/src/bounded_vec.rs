@@ -41,8 +41,8 @@ use serde::{
 /// this bound is respected.
 #[cfg_attr(feature = "serde", derive(Serialize), serde(transparent))]
 #[cfg_attr(feature = "jam-codec", derive(jam_codec::Encode))]
-#[cfg_attr(feature = "scale-codec", derive(scale_codec::Encode, scale_info::TypeInfo))]
-#[cfg_attr(feature = "scale-codec", scale_info(skip_type_params(S)))]
+#[derive(scale_codec::Encode, scale_info::TypeInfo)]
+#[scale_info(skip_type_params(S))]
 #[cfg_attr(feature = "json-schema", derive(schemars::JsonSchema))]
 pub struct BoundedVec<T, S>(pub(super) Vec<T>, #[cfg_attr(feature = "serde", serde(skip_serializing))] PhantomData<S>);
 
@@ -113,7 +113,7 @@ mod serde_impl {
 /// A bounded slice.
 ///
 /// Similar to a `BoundedVec`, but not owned and cannot be decoded.
-#[cfg_attr(feature = "scale-codec", derive(scale_codec::Encode, scale_info::TypeInfo))]
+#[derive(scale_codec::Encode, scale_info::TypeInfo)]
 #[cfg_attr(feature = "jam-codec", derive(jam_codec::Encode))]
 pub struct BoundedSlice<'a, T, S>(pub(super) &'a [T], PhantomData<S>);
 
@@ -877,7 +877,6 @@ where
 	}
 }
 
-#[cfg(any(feature = "scale-codec", feature = "jam-codec"))]
 macro_rules! codec_impl {
 	($codec:ident) => {
 		use super::*;
@@ -943,7 +942,6 @@ macro_rules! codec_impl {
 	};
 }
 
-#[cfg(feature = "scale-codec")]
 mod scale_codec_impl {
 	codec_impl!(scale_codec);
 }

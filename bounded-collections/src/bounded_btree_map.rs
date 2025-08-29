@@ -34,8 +34,8 @@ use serde::{
 /// Unlike a standard `BTreeMap`, there is an enforced upper limit to the number of items in the
 /// map. All internal operations ensure this bound is respected.
 #[cfg_attr(feature = "serde", derive(Serialize), serde(transparent))]
-#[cfg_attr(feature = "scale-codec", derive(scale_codec::Encode, scale_info::TypeInfo))]
-#[cfg_attr(feature = "scale-codec", scale_info(skip_type_params(S)))]
+#[derive(scale_codec::Encode, scale_info::TypeInfo)]
+#[scale_info(skip_type_params(S))]
 #[cfg_attr(feature = "jam-codec", derive(jam_codec::Encode))]
 pub struct BoundedBTreeMap<K, V, S>(
 	BTreeMap<K, V>,
@@ -426,7 +426,6 @@ where
 	}
 }
 
-#[cfg(any(feature = "scale-codec", feature = "jam-codec"))]
 macro_rules! codec_impl {
 	($codec:ident) => {
 		use super::*;
@@ -496,7 +495,6 @@ macro_rules! codec_impl {
 	};
 }
 
-#[cfg(feature = "scale-codec")]
 mod scale_codec_impl {
 	codec_impl!(scale_codec);
 }

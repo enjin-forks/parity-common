@@ -40,8 +40,8 @@ use serde::{
 /// The length of the vec is not strictly bounded. Decoding a vec with more element that the bound
 /// is accepted, and some method allow to bypass the restriction with warnings.
 #[cfg_attr(feature = "serde", derive(Serialize), serde(transparent))]
-#[cfg_attr(feature = "scale-codec", derive(scale_codec::Encode, scale_info::TypeInfo))]
-#[cfg_attr(feature = "scale-codec", scale_info(skip_type_params(S)))]
+#[derive(scale_codec::Encode, scale_info::TypeInfo)]
+#[scale_info(skip_type_params(S))]
 #[cfg_attr(feature = "jam-codec", derive(jam_codec::Encode))]
 pub struct WeakBoundedVec<T, S>(
 	pub(super) Vec<T>,
@@ -415,7 +415,6 @@ impl<T: Ord, S: Get<u32>> Ord for WeakBoundedVec<T, S> {
 	}
 }
 
-#[cfg(any(feature = "scale-codec", feature = "jam-codec"))]
 macro_rules! codec_impl {
 	($codec:ident) => {
 		use super::*;
@@ -460,7 +459,6 @@ macro_rules! codec_impl {
 	};
 }
 
-#[cfg(feature = "scale-codec")]
 mod scale_impl {
 	codec_impl!(scale_codec);
 }
