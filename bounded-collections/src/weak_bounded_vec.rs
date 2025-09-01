@@ -473,7 +473,6 @@ mod test {
 	use super::*;
 	use crate::ConstU32;
 	use alloc::vec;
-	#[cfg(feature = "scale-codec")]
 	use scale_codec::{Decode, Encode};
 
 	#[test]
@@ -537,7 +536,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn too_big_succeed_to_decode() {
 		let v: Vec<u32> = vec![1, 2, 3, 4, 5];
 		let w = WeakBoundedVec::<u32, ConstU32<4>>::decode(&mut &v.encode()[..]).unwrap();

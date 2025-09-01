@@ -434,7 +434,6 @@ mod test {
 	use super::*;
 	use crate::ConstU32;
 	use alloc::{vec, vec::Vec};
-	#[cfg(feature = "scale-codec")]
 	use scale_codec::{Compact, CompactLen, Decode, Encode};
 
 	fn set_from_keys<T>(keys: &[T]) -> BTreeSet<T>
@@ -453,7 +452,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn encoding_same_as_unbounded_set() {
 		let b = boundedset_from_keys::<u32, ConstU32<7>>(&[1, 2, 3, 4, 5, 6]);
 		let m = set_from_keys(&[1, 2, 3, 4, 5, 6]);
@@ -503,7 +501,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn too_big_fail_to_decode() {
 		let v: Vec<u32> = vec![1, 2, 3, 4, 5];
 		assert_eq!(
@@ -513,7 +510,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn dont_consume_more_data_than_bounded_len() {
 		let s = set_from_keys(&[1, 2, 3, 4, 5, 6]);
 		let data = s.encode();

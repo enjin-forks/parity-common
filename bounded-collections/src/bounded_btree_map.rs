@@ -509,7 +509,6 @@ mod test {
 	use super::*;
 	use crate::ConstU32;
 	use alloc::{vec, vec::Vec};
-	#[cfg(feature = "scale-codec")]
 	use scale_codec::{Compact, CompactLen, Decode, Encode};
 
 	fn map_from_keys<K>(keys: &[K]) -> BTreeMap<K, ()>
@@ -528,7 +527,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn encoding_same_as_unbounded_map() {
 		let b = boundedmap_from_keys::<u32, ConstU32<7>>(&[1, 2, 3, 4, 5, 6]);
 		let m = map_from_keys(&[1, 2, 3, 4, 5, 6]);
@@ -537,7 +535,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn encode_then_decode_gives_original_map() {
 		let b = boundedmap_from_keys::<u32, ConstU32<7>>(&[1, 2, 3, 4, 5, 6]);
 		let b_encode_decode = BoundedBTreeMap::<u32, (), ConstU32<7>>::decode(&mut &b.encode()[..]).unwrap();
@@ -587,7 +584,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn too_big_fail_to_decode() {
 		let v: Vec<(u32, u32)> = vec![(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)];
 		assert_eq!(
@@ -597,7 +593,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn dont_consume_more_data_than_bounded_len() {
 		let m = map_from_keys(&[1, 2, 3, 4, 5, 6]);
 		let data = m.encode();

@@ -955,11 +955,9 @@ mod jam_codec_impl {
 mod test {
 	use super::*;
 	use crate::{bounded_vec, ConstU32};
-	#[cfg(feature = "scale-codec")]
 	use scale_codec::{Compact, CompactLen, Decode, Encode};
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn encoding_same_as_unbounded_vec() {
 		let b: BoundedVec<u32, ConstU32<6>> = bounded_vec![0, 1, 2, 3, 4, 5];
 		let v: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
@@ -1155,7 +1153,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn too_big_vec_fail_to_decode() {
 		let v: Vec<u32> = vec![1, 2, 3, 4, 5];
 		assert_eq!(
@@ -1165,7 +1162,6 @@ mod test {
 	}
 
 	#[test]
-	#[cfg(feature = "scale-codec")]
 	fn dont_consume_more_data_than_bounded_len() {
 		let v: Vec<u32> = vec![1, 2, 3, 4, 5];
 		let data = v.encode();

@@ -22,64 +22,52 @@
 /// This is used internally by bounded collections to reconstruct the original
 /// input stream after reading the length prefix during decoding.
 
-pub struct PrependCompactInput<'a, I> {
+pub struct PrependCompactInput<'a> {
 	pub encoded_len: &'a [u8],
 	pub read: usize,
-	pub inner: &'a mut I,
+	pub inner: &'a mut dyn codec_input::InputDyn,
 }
 
 /// Macro to implement Input trait for PrependCompactInput for different codec crates
-macro_rules! impl_prepend_compact_input {
-	($codec:ident) => {
-		use $codec::{Error, Input};
+// We alias the trait so the struct can name a stable trait object type,
+// even though we generate separate impls for each codec.
+pub mod codec_input {
+	pub use scale_codec::{Error, Input as InputDyn};
+}
+use scale_codec::{Error, Input};
 
-		impl<'a, I: Input> Input for PrependCompactInput<'a, I> {
-			fn remaining_len(&mut self) -> Result<Option<usize>, Error> {
-				let remaining_compact = self.encoded_len.len().saturating_sub(self.read);
-				Ok(self.inner.remaining_len()?.map(|len| len.saturating_add(remaining_compact)))
-			}
+impl<'a> Input for PrependCompactInput<'a> {
+	fn remaining_len(&mut self) -> Result<Option<usize>, Error> {
+		let remaining_compact = self.encoded_len.len().saturating_sub(self.read);
+		Ok(self.inner.remaining_len()?.map(|len| len.saturating_add(remaining_compact)))
+	}
 
-			fn read(&mut self, into: &mut [u8]) -> Result<(), Error> {
-				if into.is_empty() {
-					return Ok(());
-				}
-
-				let remaining_compact = self.encoded_len.len().saturating_sub(self.read);
-				if remaining_compact > 0 {
-					let to_read = into.len().min(remaining_compact);
-					into[..to_read].copy_from_slice(&self.encoded_len[self.read..][..to_read]);
-					self.read += to_read;
-
-					if to_read < into.len() {
-						// Buffer not full, keep reading the inner.
-						self.inner.read(&mut into[to_read..])
-					} else {
-						// Buffer was filled by the compact.
-						Ok(())
-					}
-				} else {
-					// Prepended compact has been read, just read from inner.
-					self.inner.read(into)
-				}
-			}
+	fn read(&mut self, into: &mut [u8]) -> Result<(), Error> {
+		if into.is_empty() {
+			return Ok(());
 		}
-	};
-}
 
-// Generate implementations for each codec
-pub mod scale_codec_impl {
-	use super::PrependCompactInput;
-	impl_prepend_compact_input!(scale_codec);
-}
+		let remaining_compact = self.encoded_len.len().saturating_sub(self.read);
+		if remaining_compact > 0 {
+			let to_read = into.len().min(remaining_compact);
+			into[..to_read].copy_from_slice(&self.encoded_len[self.read..][..to_read]);
+			self.read += to_read;
 
-#[cfg(feature = "jam-codec")]
-pub mod jam_codec_impl {
-	use super::PrependCompactInput;
-	impl_prepend_compact_input!(jam_codec);
+			if to_read < into.len() {
+				// Buffer not full, keep reading the inner.
+				self.inner.read(&mut into[to_read..])
+			} else {
+				// Buffer was filled by the compact.
+				Ok(())
+			}
+		} else {
+			// Prepended compact has been read, just read from inner.
+			self.inner.read(into)
+		}
+	}
 }
 
 #[cfg(test)]
-#[cfg(any(feature = "scale-codec", feature = "jam-codec"))]
 mod tests {
 	use super::PrependCompactInput;
 
@@ -147,8 +135,5 @@ mod tests {
 	}
 
 	// Generate tests for each available codec
-	#[cfg(feature = "scale-codec")]
 	codec_tests!(scale_codec, scale_codec_impl);
-	#[cfg(feature = "jam-codec")]
-	codec_tests!(jam_codec, jam_codec_impl);
 }
